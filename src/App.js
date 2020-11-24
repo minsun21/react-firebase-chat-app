@@ -3,22 +3,18 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
 } from "react-router-dom";
+import LoginPage from './components/LoginPage/LoginPage';
+import RegisterPage from './components/RegisterPage/RegisterPage';
+import ChatPage from './components/ChatPage/ChatPage';
 
 function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/about">
-          <About />
-        </Route>
-        <Route path="/users">
-          <Users />
-        </Route>
-        <Route path="/">
-          <Home />
-        </Route>
+        <Route exact path="/login" component={LoginPage} />
+        <Route exact path="/register" component={RegisterPage} />
+        <Route exact path="/" component={ChatPage} />
       </Switch>
     </Router>
   );
