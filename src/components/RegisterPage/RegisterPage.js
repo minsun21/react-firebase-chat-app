@@ -1,20 +1,48 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import {
     Link
 } from "react-router-dom";
 import { useForm } from 'react-hook-form';
 
+import firebase from '../../firebase';
+import md5 from 'md5';
+
 function RegisterPage() {
-    const { register, watch, errors } = useForm();
+    const [errorFromSubmit, setErrorFromSubmit] = useState('');
+    const [loading, setloading] = useState(false);
+    const { register, watch, errors, handleSubmit } = useForm();
     const password = useRef();
     password.current = watch("password");
 
-    console.log(watch("email"));
+    const onSubmit = async (data) => {
+        try {
+            setloading(true);
+            let createdUser = await firebase.auth().createUserWithEmailAndPassword(data.email, data.password);
+            console.log(createdUser)
+            await createdUser.user.updateProfile({
+                displayName: data.name,
+                photoURL: `http://gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon`
+            })
+
+            // DB 
+            await firebase.database().ref("users").child(createdUser.user.uid).set({
+                name: createdUser.user.displayName,
+                image: createdUser.user.photoURL
+            })
+            setloading(false);
+        } catch (error) {
+            setloading(false);
+            setErrorFromSubmit(error.message);
+            setTimeout(() => {
+                setErrorFromSubmit('');
+            }, 5000);
+        }
+    }
 
     return (
         <div className="auth-wrapper">
             <div className="auth-wrapper__header"><h3>Register</h3></div>
-            <form>
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <label>Email</label>
                 <input
                     name="email"
@@ -48,7 +76,8 @@ function RegisterPage() {
                 />
                 {errors.passwordConfirm && errors.passwordConfirm.type === 'required' && <p>This field is required</p>}
                 {errors.passwordConfirm && errors.passwordConfirm.type === 'validate' && <p>The passwords do not match</p>}
-                <input type="submit" />
+                {errorFromSubmit && <p>{errorFromSubmit}</p>}
+                <input type="submit" disabled={loading} />
                 <Link to="/login" className="auth-wrapper__login">이미 아이디가 있다면...</Link>
             </form>
         </div>
