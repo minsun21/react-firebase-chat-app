@@ -41,3 +41,49 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
+/**채팅 페이지*/
+.chat-page{
+	display: flex;
+}
+.chat-page__side-panel{
+	width: 300px;
+}
+.chat-page__main-panel{
+	width: 100%;
+}
+.main-panel__body{
+	padding: 2rem 2rem 0 2rem;
+}
+.main-panel__hader-box{
+	width: 100%;
+	height: 450px;
+	border: .2rem solid #ececec;
+	border-radius: 4px;
+	padding: 1rem;
+	margin-bottom: 1rem;
+	overflow-y: auto;
+}
+/** 사이드 패널 */
+.side-panel__body{
+	background-color: #7b83eb;
+	padding: 2rem;
+	min-height: 100vh;
+	color: white;
+	min-width: 275px;
+}
+.side-panel__user-panel h3{
+	color: white;
+}
+.user-panel__dropdown{
+	display: flex;
+	margin-bottom: 1rem;
+}
+.user-panel__dropdown-user-img{
+	width: 30px;
+	height: 30px;
+	margin-top: 3px;
+}
+#dropdown-basic{
+	background-color: transparent;
+	border: 0px;
+}

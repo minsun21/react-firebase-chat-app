@@ -11,7 +11,7 @@ import ChatPage from './components/ChatPage/ChatPage';
 import firebase from './firebase';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from './redux/actions/user_action';
+import { setUser, clearUser } from './redux/actions/user_action';
 
 function App() {
   let history = useHistory();
@@ -25,7 +25,8 @@ function App() {
         history.push('/');
         dispatch(setUser(user));
       } else {
-        history.push('/login')
+        history.push('/login');
+        dispatch(clearUser(user));
       }
     });
   }, []);
