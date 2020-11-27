@@ -87,3 +87,16 @@ table {
 	background-color: transparent;
 	border: 0px;
 }
+.chat-room_header{
+	position: relative;
+	width: 100%;
+	display: flex;
+	align-items: center;
+}
+.side-panel__chat-room ul{
+	list-style-type: none;
+	padding: 0;
+}
+.side-panel__chat-room .active-li{
+	background-color: #ffffff45;
+}
