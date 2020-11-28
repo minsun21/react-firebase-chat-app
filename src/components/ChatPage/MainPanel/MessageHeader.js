@@ -13,7 +13,7 @@ import { FaLock } from 'react-icons/fa';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { MdFavorite } from 'react-icons/md';
 
-function MessageHeader() {
+function MessageHeader({ handleSearchChange }) {
     return (
         <div className="main-panel__message-header">
             <Container>
@@ -27,6 +27,7 @@ function MessageHeader() {
                                 </InputGroup.Text>
                             </InputGroup.Prepend>
                             <FormControl
+                                onChange={handleSearchChange}
                                 placeholder="Search Message"
                                 aria-label="Search"
                                 aria-describedby="basic-addon1"
