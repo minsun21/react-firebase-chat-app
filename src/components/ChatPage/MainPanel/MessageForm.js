@@ -19,6 +19,7 @@ function MessageForm() {
 
     const chatRoom = useSelector(state => state.chatRoom.currentChatRoom);
     const user = useSelector(state => state.user.currentUser);
+    const isPrivateChatRoom = useSelector(state => state.chatRoom.isPrivateChatRoom)
 
     const createMessage = (fileUrl = null) => {
         const message = {
@@ -60,14 +61,25 @@ function MessageForm() {
     const handleChange = (e) => {
         setcontent(e.target.value);
     }
+
     const handleOpenImageRef = () => {
         inputOpenImageRef.current.click()
+    }
+
+    const getPath = () => {
+        console.log('흠')
+        console.log(isPrivateChatRoom)
+        if (isPrivateChatRoom) {
+            return `/message/private/${chatRoom.id}`;
+        } else {
+            return `/message/public/${chatRoom.id}`;
+        }
     }
 
     const handleUploadImage = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        const filePath = `message/public/${file.name}`;
+        const filePath = `${getPath()}/${file.name}`;
         const metadata = { contentType: mime.lookup(file.name) };
         setloading(true);
         try {

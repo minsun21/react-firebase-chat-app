@@ -60,7 +60,21 @@
 .side-panel__chat-room .active-li{
 	background-color: #ffffff45;
 }
+.direct-message span{
+	display: flex;
+	align-items: center;
+}
+.direct-message ul{
+	list-style-type: none;
+	padding: 0;
+}
+.direct-message li{
+	cursor: pointer;
+}
 
+.direct-message .active{
+	background-color: #ffffff45;
+}
 /** 메인 패널 */
 .main-panel__message-header{
 	width: 100%;

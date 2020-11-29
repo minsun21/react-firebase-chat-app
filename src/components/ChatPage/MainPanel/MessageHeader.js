@@ -1,4 +1,6 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -9,16 +11,22 @@ import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 
-import { FaLock } from 'react-icons/fa';
+import { FaLock, FaLockOpen } from 'react-icons/fa';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { MdFavorite } from 'react-icons/md';
 
 function MessageHeader({ handleSearchChange }) {
+    const chatRoom = useSelector(state => state.chatRoom.currentChatRoom);
+    const isPrivateChatRoom = useSelector(state => state.chatRoom.isPrivateChatRoom);
     return (
         <div className="main-panel__message-header">
             <Container>
                 <Row>
-                    <Col><h2><FaLock /> ChatRoomName <MdFavorite /></h2></Col>
+                    <Col><h2>
+                        {isPrivateChatRoom ? <FaLock style={{ marginRight: '3px' }} /> : <FaLockOpen style={{ marginRight: '3px' }} />}
+                        {chatRoom && chatRoom.name}
+
+                        <MdFavorite /></h2></Col>
                     <Col>
                         <InputGroup className="mb-3">
                             <InputGroup.Prepend>
