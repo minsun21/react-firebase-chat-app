@@ -123,3 +123,16 @@
 .message-box__message .message-img{
 	max-width: 300px;
 }
+/* Favorited */
+.favorited-panel span{
+	display: flex;
+	align-items: center;
+}
+.favorited-panel ul{
+	list-style-type: none;
+	padding: 0;
+}
+
+.favorited-panel .active{
+	background-color: #ffffff45;
+}
