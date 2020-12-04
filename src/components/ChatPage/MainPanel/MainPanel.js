@@ -4,6 +4,7 @@ import MessageForm from './MessageForm';
 import { connect } from 'react-redux';
 import firebase from '../../../firebase';
 import Message from './Message';
+import { setUserPosts } from '../../../redux/actions/chatRoom_action';
 
 export class MainPanel extends Component {
     state = {
@@ -29,8 +30,24 @@ export class MainPanel extends Component {
                 messages: messagesArray,
                 messagesLoading: false
             })
+            this.userPostsCount(messagesArray);
         })
     }
+    userPostsCount = (messages) => {
+        let userPosts = messages.reduce((acc, message) => {
+            if (message.user.name in acc) {
+                acc[message.user.name].count += 1;
+            } else {
+                acc[message.user.name] = {
+                    image: message.user.image,
+                    count: 1
+                }
+            }
+            return acc;
+        }, {})
+        this.props.dispatch(setUserPosts(userPosts));
+    }
+
     renderMessages = (messgaes) => messgaes.length > 0 && messgaes.map(message => (<Message key={message.timestamp} message={message} user={this.props.user} />))
 
     handleSearch = () => {

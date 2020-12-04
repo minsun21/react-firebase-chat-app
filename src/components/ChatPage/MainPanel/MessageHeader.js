@@ -11,6 +11,7 @@ import Image from 'react-bootstrap/Image';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
+import Media from 'react-bootstrap/Media';
 
 import { FaLock, FaLockOpen } from 'react-icons/fa';
 import { AiOutlineSearch } from 'react-icons/ai';
@@ -22,6 +23,7 @@ function MessageHeader({ handleSearchChange }) {
     const isPrivateChatRoom = useSelector(state => state.chatRoom.isPrivateChatRoom);
     const [isFavorited, setisFavorited] = useState(false);
     const usersRef = firebase.database().ref("users");
+    const userPosts = useSelector(state => state.chatRoom.userPosts);
 
     useEffect(() => {
         if (chatRoom && user)
@@ -59,6 +61,21 @@ function MessageHeader({ handleSearchChange }) {
             setisFavorited(prev => !prev);
         }
     }
+
+    const renderUserPosts = (userPosts) =>
+        Object.entries(userPosts)
+            .sort((a, b) => b[1].count - a[1].count)
+            .map(([key, val], i) => (
+                <Media key={i}>
+                    <img style={{ borderRadius: 25 }} width={48} height={48} className="mr-3" src={val.image} alt={val.name} />
+                    <Media.Body>
+                        <h6>{key}</h6>
+                        <p>{val.count} 개</p>
+                    </Media.Body>
+                </Media>
+            ))
+
+
     return (
         <div className="main-panel__message-header">
             <Container>
@@ -94,22 +111,24 @@ function MessageHeader({ handleSearchChange }) {
                         </InputGroup>
                     </Col>
                 </Row>
-                <div className="message-header__center">
-                    <p>
-                        <Image src="" /> {" "}user name
-                    </p>
-                </div>
+                {!isPrivateChatRoom &&
+                    <div className="message-header__center">
+                        <p>
+                            <Image src={chatRoom && chatRoom.createdBy.image} roundedCircle style={{ width: '30px', height: '30px' }} />
+                            {" "}{chatRoom && chatRoom.createdBy.name}
+                        </p>
+                    </div>}
                 <Row>
                     <Col>
                         <Accordion>
                             <Card>
                                 <Card.Header style={{ padding: '0 1rem' }}>
                                     <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                                        Click me!
+                                        Description
                                 </Accordion.Toggle>
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="0">
-                                    <Card.Body>Hello! I'm the body</Card.Body>
+                                    <Card.Body>{chatRoom && chatRoom.desc}</Card.Body>
                                 </Accordion.Collapse>
                             </Card>
                         </Accordion>
@@ -119,11 +138,11 @@ function MessageHeader({ handleSearchChange }) {
                             <Card>
                                 <Card.Header style={{ padding: '0 1rem' }}>
                                     <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                                        Click me!
+                                        Posts Count
                                 </Accordion.Toggle>
                                 </Card.Header>
                                 <Accordion.Collapse eventKey="0">
-                                    <Card.Body>Hello! I'm the body</Card.Body>
+                                    <Card.Body>{userPosts && renderUserPosts(userPosts)}</Card.Body>
                                 </Accordion.Collapse>
                             </Card>
                         </Accordion>
