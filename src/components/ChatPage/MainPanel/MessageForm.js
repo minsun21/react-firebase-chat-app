@@ -16,6 +16,7 @@ function MessageForm() {
     const inputOpenImageRef = useRef();
     const messagesRef = firebase.database().ref("messages");
     const storageRef = firebase.storage().ref();
+    const typingRef = firebase.database().ref("typing");
 
     const chatRoom = useSelector(state => state.chatRoom.currentChatRoom);
     const user = useSelector(state => state.user.currentUser);
@@ -46,6 +47,8 @@ function MessageForm() {
         setloading(true);
         try {
             await messagesRef.child(chatRoom.id).push().set(createMessage());
+            typingRef.child(chatRoom.id).child(user.uid).remove();
+
             setcontent("");
             seterrors([]);
         } catch (error) {
@@ -67,8 +70,6 @@ function MessageForm() {
     }
 
     const getPath = () => {
-        console.log('흠')
-        console.log(isPrivateChatRoom)
         if (isPrivateChatRoom) {
             return `/message/private/${chatRoom.id}`;
         } else {
@@ -102,11 +103,22 @@ function MessageForm() {
             alert(error.message);
         }
     }
+    const handleKeyDown = (event) => {
+        if (event.ctrlKey && event.keyCode === 13) {
+            handleSubmit();
+        }
+
+        if (content) {
+            typingRef.child(chatRoom.id).child(user.uid).set(user.displayName)
+        } else {
+            typingRef.child(chatRoom.id).child(user.uid).remove();
+        }
+    }
 
     return (
         <div className="main-panel__message-form">
             <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="exampleForm.ControlTextarea1">
+                <Form.Group onKeyDown={handleKeyDown} controlId="exampleForm.ControlTextarea1">
                     <Form.Control as="textarea" value={content} onChange={handleChange} rows={3} />
                 </Form.Group>
             </Form>

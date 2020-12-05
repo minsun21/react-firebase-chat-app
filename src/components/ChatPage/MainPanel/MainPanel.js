@@ -1,27 +1,86 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import MessageHeader from './MessageHeader';
 import MessageForm from './MessageForm';
 import { connect } from 'react-redux';
 import firebase from '../../../firebase';
 import Message from './Message';
 import { setUserPosts } from '../../../redux/actions/chatRoom_action';
+import Skeleton from '../../commons/Skeleton';
 
 export class MainPanel extends Component {
+    messageEndRef = React.createRef();
     state = {
         messages: [],
         messagesRef: firebase.database().ref("messages"),
         messagesLoading: true,
         searchTerm: "",
         searchResults: [],
-        searchLoading: false
+        searchLoading: false,
+        typingRef: firebase.database().ref("typing"),
+        typingUsers: [],
+        listenerLists: []
     }
 
     componentDidMount() {
         const { chatRoom } = this.props;
         if (chatRoom) {
-            this.addMessagesListeners(chatRoom.id)
+            this.addMessagesListeners(chatRoom.id);
+            this.addTypingListeners(chatRoom.id);
         }
     }
+
+    componentWillUnmount() {
+        this.state.messagesRef.off();
+        this.removeListeners(this.state.listenerLists);
+    }
+
+    componentDidUpdate() {
+        if (this.messageEndRef) {
+            this.messageEndRef.scrollIntoView({ behavior: "smooth" });
+        }
+    }
+
+    removeListeners = (listeners) => {
+        listeners.forEach(listener => {
+            listener.ref.child(listener.id).off(listener.event)
+        })
+    }
+
+    addTypingListeners = (chatRoomId) => {
+        let typingUsers = [];
+        // typing 할 때 
+        this.state.typingRef.child(chatRoomId).on("child_added", DataSnapshot => {
+            if (DataSnapshot.key !== this.props.user.uid) {
+                typingUsers = typingUsers.concat({
+                    id: DataSnapshot.key,
+                    name: DataSnapshot.val()
+                });
+                this.setState({ typingUsers });
+            }
+        })
+
+        this.addToListenerLists(chatRoomId, this.state.typingRef, "child_added");
+
+        // typing 지울때
+        this.state.typingRef.child(chatRoomId).on("child_removed", DataSnapshot => {
+            const index = typingUsers.findIndex(user => user.id === DataSnapshot.key);
+            if (index !== -1) {
+                typingUsers = typingUsers.filter(user => user.id !== DataSnapshot.key);
+                this.setState({ typingUsers });
+            }
+        })
+        this.addToListenerLists(chatRoomId, this.state.typingRef, "child_removed");
+    }
+    addToListenerLists = (id, ref, event) => {
+        const index = this.state.listenerLists.findIndex(listener => {
+            return (listener.id === id && listener.ref === ref && listener.event === event);
+        })
+        if (index === -1) {
+            const newListener = { id, ref, event };
+            this.setState({ listenerLists: this.state.listenerLists.concat(newListener) });
+        }
+    }
+
     addMessagesListeners = (chatRoomId) => {
         let messagesArray = [];
         this.state.messagesRef.child(chatRoomId).on("child_added", DataSnapshot => {
@@ -33,6 +92,7 @@ export class MainPanel extends Component {
             this.userPostsCount(messagesArray);
         })
     }
+
     userPostsCount = (messages) => {
         let userPosts = messages.reduce((acc, message) => {
             if (message.user.name in acc) {
@@ -70,14 +130,22 @@ export class MainPanel extends Component {
             () => this.handleSearch()
         )
     }
+    renderTypingUsers = (typingUsers) =>
+        typingUsers.length > 0 && typingUsers.map(user => (<span>{user.name}님이 채팅을 입력하고 있습니다...</span>))
+
+    renderMessageSkeleton = (loading) =>
+        loading && (<>{[...new Array(10)].map((v, i) => (<Skeleton key={i} />))}</>)
+
     render() {
-        const { messages, searchTerm, searchResults } = this.state;
+        const { messages, searchTerm, searchResults, typingUsers, messagesLoading } = this.state;
         return (
             <div className="main-panel__body">
                 <MessageHeader handleSearchChange={this.handleSearchChange} />
                 <div className="main-panel__message-box">
+                    {this.renderMessageSkeleton(messagesLoading)}
                     {searchTerm ? this.renderMessages(searchResults) : this.renderMessages(messages)}
-
+                    {this.renderTypingUsers(typingUsers)}
+                    <div ref={node => this.messageEndRef = node} />
                 </div>
                 <MessageForm />
             </div>
